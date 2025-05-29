@@ -1,0 +1,40 @@
+name: Auto Update index.html
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  update-index:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Run update_index.py script
+        run: |
+          python "update_index (1).py"
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add index.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Auto-update index.html"
+
+            # Pull remote changes with rebase to avoid non-fast-forward push errors
+            git pull --rebase origin main
+
+            git push
+          else
+            echo "No changes to commit."
+          fi
