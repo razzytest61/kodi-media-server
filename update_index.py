@@ -1,25 +1,30 @@
-name: Update index.html
+import os
 
-on:
-  push:
-    paths:
-      - '*.strm'
+def get_strm_files():
+    return [f for f in os.listdir('.') if f.endswith('.strm')]
 
-jobs:
-  update-index:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
-      - name: Update index.html
-        run: python update_index.py
-      - name: Commit and push if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html
-          git commit -m "Auto-update index.html" || exit 0
-          git push
+def make_link(filename):
+    from urllib.parse import quote
+    return f'<li><a href="{quote(filename)}">{filename}</a></li>'
+
+def update_index():
+    files = get_strm_files()
+    links = "\n".join([make_link(f) for f in sorted(files)])
+    html = f"""<!DOCTYPE HTML>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+<hr>
+<ul>
+{links}
+</ul>
+<hr>
+</body>
+</html>"""
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+
+if __name__ == "__main__":
+    update_index()
