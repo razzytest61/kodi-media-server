@@ -10,21 +10,31 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed for pull --rebase
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
-      - name: Update index.html
+      - name: Run update_index.py
         run: python update_index.py
 
-      - name: Commit and push index.html if changed
+      - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Pull latest changes with rebase
+        run: git pull origin main --rebase
+
+      - name: Commit index.html if it changed
+        run: |
           git add index.html
           git diff --cached --quiet || git commit -m "Auto-update index.html"
-          git pull --rebase # Fetch the latest changes from remote
-          git push
+
+      - name: Push changes
+        run: |
+          git push origin main
