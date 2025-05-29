@@ -26,5 +26,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html
           git diff --cached --quiet || git commit -m "Auto-update index.html"
-          git pull --rebase # Ensure the local branch is up to date
+          git pull --rebase # Fetch the latest changes from remote
           git push
